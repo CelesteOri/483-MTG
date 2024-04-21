@@ -48,7 +48,10 @@ public class Index {
 
             for (Map<String, Object> card : data) {
                 //System.out.println(card.get("name"));
-                addDoc(writer, card);
+                //System.out.println(card.get("legalities"));
+                if (((LinkedHashMap)card.get("legalities")).get("commander").equals("legal")) {
+                    addDoc(writer, card);
+                }
             }
 
             writer.close();
@@ -71,7 +74,7 @@ public class Index {
     public List<String> search(Query query) throws IOException {
         IndexReader reader = DirectoryReader.open(index);
         IndexSearcher searcher = new IndexSearcher(reader);
-        TopDocs docs = searcher.search(query, reader.maxDoc());
+        TopDocs docs = searcher.search(query, 10 /*reader.maxDoc()*/);
         ScoreDoc[] hits = docs.scoreDocs;
 
         Arrays.sort(hits, (doc1, doc2) -> Float.compare(doc2.score, doc1.score));
@@ -82,6 +85,8 @@ public class Index {
             float score = hit.score;
             Document doc = searcher.doc(docID);
             results.add(doc.get("name"));
+            System.out.println(doc.get("name") + ":");
+            System.out.println(doc.get("text") + "\n");
         }
 
         return results;
@@ -95,17 +100,29 @@ public class Index {
         boolean running = true;
         while (running) {
 
+            System.out.println("Would you like to search card names or card text? (type n/t)");
+            String searchType = "";
+            while (!searchType.equals("n") && !searchType.equals("t")) {
+                searchType = scanner.nextLine();
+            }
+            if (searchType.equals("n")) {
+                searchType = "name";
+            } else {
+                searchType = "text";
+            }
+
             System.out.println("Please enter a search query:");
             String userQuery = scanner.nextLine();
 
             Query query = null;
             try {
-                query = new QueryParser("name", index.analyzer).parse(userQuery);
+                query = new QueryParser(searchType, index.analyzer).parse(userQuery);
             } catch (ParseException e) {
                 System.out.println("Unrecognized query :(");
                 continue;
             }
 
+            System.out.println("Your search results are:\n");
             List<String> results = null;
             try {
                 results = index.search(query);
@@ -114,12 +131,13 @@ public class Index {
                 //continue;
                 e.printStackTrace();
             }
-            System.out.println("Your search results are:\n");
-            for (String card : results) {
-                System.out.println(card);
-            }
 
-            System.out.println("\nWould you like to continue searching? (y/n)");
+//            System.out.println("Your search results are:\n");
+//            for (String card : results) {
+//                System.out.println(card);
+//            }
+
+            System.out.println("\nWould you like to continue searching? (type y/n)");
             String userContinue = "";
             while (!userContinue.equals("n") && !userContinue.equals("y")) {
                 userContinue = scanner.nextLine();
