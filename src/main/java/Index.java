@@ -25,10 +25,9 @@ import java.util.*;
 public class Index {
     StandardAnalyzer analyzer;
     Directory index;
-    IndexWriterConfig config;
-    IndexWriter writer;
 
     public Index(boolean loadFromDisk, String inputFilePath) {
+        analyzer = new StandardAnalyzer();
         if (loadFromDisk) {
             loadIndex(inputFilePath);
         } else {
@@ -38,7 +37,6 @@ public class Index {
 
     private void loadIndex(String inputFilePath) {
         try {
-            analyzer = new StandardAnalyzer();
             String filePath = new File(inputFilePath).getAbsolutePath();
             index = FSDirectory.open(Paths.get(filePath));
         } catch (IOException e) {
@@ -47,12 +45,11 @@ public class Index {
     }
 
     private void createIndex(String inputFilePath) {
-
         try {
-            analyzer = new StandardAnalyzer();
-            index    = FSDirectory.open(Paths.get("mtgIndex"));
-            config   = new IndexWriterConfig(analyzer);
-            writer   = new IndexWriter(index, config);
+            index = FSDirectory.open(Paths.get("mtgIndex"));
+            //index = new ByteBuffersDirectory();
+            IndexWriterConfig config = new IndexWriterConfig(analyzer);
+            IndexWriter writer = new IndexWriter(index, config);
 
             ObjectMapper objectMapper = new ObjectMapper();
             String filePath = new File(inputFilePath).getAbsolutePath();
@@ -73,9 +70,20 @@ public class Index {
     private void addDoc(IndexWriter writer, Map<String, Object> card) throws IOException {
         Document doc = new Document();
         doc.add(new TextField("name", (String) card.get("name"), Field.Store.YES));
-        String oracleText = (String) card.get("oracle_text");
-        if (oracleText == null) {
-            oracleText = "";
+
+        ArrayList<LinkedHashMap<String, Object>> faces = new ArrayList<>();
+        try {
+            faces = (ArrayList<LinkedHashMap<String, Object>>) card.get("card_faces");
+        } catch (ClassCastException e) {
+        }
+
+        String oracleText = "";
+        if (faces != null) {
+            oracleText = oracleText.concat((String) faces.get(0).get("oracle_text"));
+            oracleText = oracleText.concat("\n");
+            oracleText = oracleText.concat((String) faces.get(1).get("oracle_text"));
+        } else {
+            oracleText = oracleText.concat((String) card.get("oracle_text"));
         }
         doc.add(new TextField("text", oracleText, Field.Store.YES));
         doc.add(new StringField("color_identity", String.join("", (ArrayList<String>) card.get("color_identity")), Field.Store.YES));
@@ -129,7 +137,6 @@ public class Index {
     public static void main(String[] args) {
         Index index = new Index(true, "mtgIndex");
 //        Index index = new Index(false, "oracleCards.json");
-
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to Magic card search!");
 
