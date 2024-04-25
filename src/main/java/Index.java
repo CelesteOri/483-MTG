@@ -11,8 +11,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.ByteBuffersDirectory;
+import org.apache.lucene.store.*;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.document.TextField;
@@ -20,31 +19,43 @@ import org.apache.lucene.document.Field;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Index {
-
-    String inputFilePath ="";
-
     StandardAnalyzer analyzer;
     Directory index;
     IndexWriterConfig config;
     IndexWriter writer;
 
-    public Index() {
-        createIndex();
+    public Index(boolean loadFromDisk, String inputFilePath) {
+        if (loadFromDisk) {
+            loadIndex(inputFilePath);
+        } else {
+            createIndex(inputFilePath);
+        }
     }
 
-    private void createIndex() {
+    private void loadIndex(String inputFilePath) {
+        try {
+            analyzer = new StandardAnalyzer();
+            String filePath = new File(inputFilePath).getAbsolutePath();
+            index = FSDirectory.open(Paths.get(filePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createIndex(String inputFilePath) {
 
         try {
             analyzer = new StandardAnalyzer();
-            index    = new ByteBuffersDirectory();
+            index    = FSDirectory.open(Paths.get("mtgIndex"));
             config   = new IndexWriterConfig(analyzer);
             writer   = new IndexWriter(index, config);
 
             ObjectMapper objectMapper = new ObjectMapper();
-            String filePath = new File("oracleCards.json").getAbsolutePath();
+            String filePath = new File(inputFilePath).getAbsolutePath();
             List<Map<String, Object>> data = objectMapper.readValue(new File(filePath), new TypeReference<List<Map<String, Object>>>() {});
 
             for (Map<String, Object> card : data) {
@@ -93,7 +104,7 @@ public class Index {
     }
 
     public List<Document> filter(List<Document> results, List<Document> query, String color_identity) {
-        List<Document> filtered_results = new ArrayList<>();
+        List<Document> filteredResults = new ArrayList<>();
         for (Document card : results) {
             if (query.contains(card)) {
                 continue;
@@ -101,9 +112,9 @@ public class Index {
             if (!isSubset(card.get("color_identity"), color_identity)){
                 continue;
             }
-            filtered_results.add(card);
+            filteredResults.add(card);
         }
-        return filtered_results;
+        return filteredResults;
     }
 
     private boolean isSubset(String s1, String s2) {
@@ -116,7 +127,9 @@ public class Index {
     }
 
     public static void main(String[] args) {
-        Index index = new Index();
+        Index index = new Index(true, "mtgIndex");
+//        Index index = new Index(false, "oracleCards.json");
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to Magic card search!");
 
