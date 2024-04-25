@@ -2,6 +2,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -53,9 +54,7 @@ public class Index {
                     addDoc(writer, card);
                 }
             }
-
             writer.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -68,28 +67,52 @@ public class Index {
             oracleText = "";
         }
         doc.add(new TextField("text", oracleText, Field.Store.YES));
+        doc.add(new StringField("color_identity", String.join("", (ArrayList<String>) card.get("color_identity")), Field.Store.YES));
         writer.addDocument(doc);
     }
 
-    public List<String> search(Query query) throws IOException {
+    public List<Document> search(Query query, int how_many) throws IOException {
         IndexReader reader = DirectoryReader.open(index);
         IndexSearcher searcher = new IndexSearcher(reader);
-        TopDocs docs = searcher.search(query, 10 /*reader.maxDoc()*/);
+        TopDocs docs = searcher.search(query, how_many);
         ScoreDoc[] hits = docs.scoreDocs;
 
         Arrays.sort(hits, (doc1, doc2) -> Float.compare(doc2.score, doc1.score));
 
-        List<String> results = new ArrayList<>();
+        List<Document> results = new ArrayList<>();
         for (ScoreDoc hit : hits) {
             int docID = hit.doc;
             float score = hit.score;
             Document doc = searcher.doc(docID);
-            results.add(doc.get("name"));
-            System.out.println(doc.get("name") + ":");
-            System.out.println(doc.get("text") + "\n");
+            results.add(doc);
+//            System.out.println(doc.get("name") + " " + doc.get("color_identity") + " (" + score + "):");
+//            System.out.println(doc.get("text") + "\n");
         }
 
         return results;
+    }
+
+    public List<Document> filter(List<Document> results, List<Document> query, String color_identity) {
+        List<Document> filtered_results = new ArrayList<>();
+        for (Document card : results) {
+            if (query.contains(card)) {
+                continue;
+            }
+            if (!isSubset(card.get("color_identity"), color_identity)){
+                continue;
+            }
+            filtered_results.add(card);
+        }
+        return filtered_results;
+    }
+
+    private boolean isSubset(String s1, String s2) {
+        for (char c : s1.toCharArray()) {
+            if (s2.indexOf(c) == -1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static void main(String[] args) {
@@ -123,19 +146,23 @@ public class Index {
             }
 
             System.out.println("Your search results are:\n");
-            List<String> results = null;
+            List<Document> results = null;
             try {
-                results = index.search(query);
+                results = index.search(query, 100);
             } catch (IOException e) {
-                //System.out.println("Error while searching :(");
-                //continue;
-                e.printStackTrace();
+                System.out.println("Error while searching :(");
+                continue;
+                //e.printStackTrace();
             }
 
-//            System.out.println("Your search results are:\n");
-//            for (String card : results) {
-//                System.out.println(card);
-//            }
+            ArrayList<Document> dummy = new ArrayList<>();
+            results = index.filter(results, dummy, "WUBRG");
+
+            for (Document card : results) {
+                System.out.println(card.get("name") + " " + card.get("color_identity"));
+                System.out.println(card.get("text"));
+                System.out.println();
+            }
 
             System.out.println("\nWould you like to continue searching? (type y/n)");
             String userContinue = "";
