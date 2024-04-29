@@ -94,6 +94,7 @@ public class commander {
         List<String> keys = temp.keywords();
         String color = "";
 
+        ArrayList<Document> deck = new ArrayList<>();
         List<String> usableKeys = new ArrayList<>();
         for (String s : samp) {
             Query query = new QueryParser("name", index.analyzer).parse(s);
@@ -104,6 +105,7 @@ public class commander {
                 String text = card.get("text");
                 List<String> usable = temp.parseKeywords(keys, text);
                 usableKeys.addAll(usable);
+                deck.addAll(results);
 
                 if (s.equals(samp[0])) {
                     color = card.get("color_identity");
@@ -111,20 +113,26 @@ public class commander {
             }
         }
 
+        String finalQuery = "";
 
         for (String key : usableKeys) {
-            Query query = new QueryParser("text", index.analyzer).parse(key);
-            List<Document> results = null;
-            results = index.search(query, 20);
+            finalQuery = finalQuery.concat(key + " ");
+        }
+        Query query = new QueryParser("text", index.analyzer).parse(finalQuery);
+        List<Document> results = null;
+        results = index.search(query, 120);
 
-            ArrayList<Document> dummy = new ArrayList<>();
-            results = index.filter(results, dummy, color);
 
-            for (Document card : results) {
-                System.out.println(card.get("name") + " " + card.get("color_identity"));
-                System.out.println(card.get("text"));
-                System.out.println();
-            }
+        results = index.filter(results, deck, color);
+
+        if (results.size() > 100) {
+            results = results.subList(0, 100);
+        }
+
+        for (Document card : results) {
+            System.out.println(card.get("name") + " " + card.get("color_identity"));
+            System.out.println(card.get("text"));
+            System.out.println();
         }
     }
 }
