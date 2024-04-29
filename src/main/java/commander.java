@@ -92,6 +92,7 @@ public class commander {
         Index index = new Index(true, "mtgIndex");
 
         List<String> keys = temp.keywords();
+        String color = "";
 
         List<String> usableKeys = new ArrayList<>();
         for (String s : samp) {
@@ -101,12 +102,29 @@ public class commander {
 
             for (Document card : results) {
                 String text = card.get("text");
-                System.out.println(text);
                 List<String> usable = temp.parseKeywords(keys, text);
                 usableKeys.addAll(usable);
+
+                if (s.equals(samp[0])) {
+                    color = card.get("color_identity");
+                }
             }
         }
 
-        for (String key : usableKeys) { System.out.println(key); }
+
+        for (String key : usableKeys) {
+            Query query = new QueryParser("text", index.analyzer).parse(key);
+            List<Document> results = null;
+            results = index.search(query, 20);
+
+            ArrayList<Document> dummy = new ArrayList<>();
+            results = index.filter(results, dummy, color);
+
+            for (Document card : results) {
+                System.out.println(card.get("name") + " " + card.get("color_identity"));
+                System.out.println(card.get("text"));
+                System.out.println();
+            }
+        }
     }
 }
