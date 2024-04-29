@@ -2,10 +2,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -35,6 +32,23 @@ public class commander {
         return st;
     }
 
+    private List<String> keywords() throws Exception {
+        // I don't know how to make this generic yet
+        File file = new File("C:\\Users\\honor\\IdeaProjects\\483-MTG\\keyword.txt");
+
+        // Creating an object of BufferedReader class
+        BufferedReader br
+                = new BufferedReader(new FileReader(file));
+        List<String> keywordL = new ArrayList<String>();
+
+        String cur;
+        while ((cur = br.readLine()) != null) {
+            keywordL.add(cur);
+        }
+
+        return keywordL;
+    }
+
     private String[] commanderSample(int number, String[] deck) {
         String[] strings = new String[number];
         strings[0] = deck[0]; int i = 1;
@@ -56,24 +70,43 @@ public class commander {
         return strings;
     }
 
+    private List<String> parseKeywords(List<String> keys, String text) {
+        List<String> appears = new ArrayList<String>();
+
+        text = text.toLowerCase();
+
+        for (String key : keys) {
+            if (text.contains(key.toLowerCase())) {
+                appears.add(key);
+            }
+        }
+
+        return appears;
+    }
+
     public static void main(String[] args) throws Exception {
         commander temp = new commander();
         String[] h = temp.getDeck("C:\\Users\\honor\\IdeaProjects\\483-MTG\\Atraxa, Praetors' Voice.txt");
+        String[] samp = temp.commanderSample(25, h);
 
         Index index = new Index(true, "mtgIndex");
-        Query query = new QueryParser("name", index.analyzer).parse(h[0]);
-        List<Document> results = null;
-        results = index.search(query, 1);
 
-        for (Document card : results) {
-            System.out.println(card.get("name") + " " + card.get("color_identity"));
-            System.out.println(card.get("text"));
-            System.out.println();
-        }
+        List<String> keys = temp.keywords();
 
-        String[] samp = temp.commanderSample(25, h);
+        List<String> usableKeys = new ArrayList<>();
         for (String s : samp) {
-            System.out.println(s);
+            Query query = new QueryParser("name", index.analyzer).parse(s);
+            List<Document> results = null;
+            results = index.search(query, 1);
+
+            for (Document card : results) {
+                String text = card.get("text");
+                System.out.println(text);
+                List<String> usable = temp.parseKeywords(keys, text);
+                usableKeys.addAll(usable);
+            }
         }
+
+        for (String key : usableKeys) { System.out.println(key); }
     }
 }
