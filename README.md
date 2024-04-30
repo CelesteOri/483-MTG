@@ -24,5 +24,5 @@
         1 Ashcloud Phoenix
         ...
 
-- When prompted, type in the full file name of the decklist (for example, "Omnath.txt")
+- When prompted, type in the full file name of the decklist (for example, "Krenko, Mob Boss.txt"). DO NOT PUT THE ABSOLUTE PATH, ONLY THE FILE NAME.
 - Follow prompts as necessary
