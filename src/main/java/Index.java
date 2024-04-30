@@ -1,3 +1,15 @@
+/******************************************************************************
+ * AUTHOR: Adrian Moore & Honor Jang
+ * FILE: Index.java
+ * COURSE: CSc 483, Spring 2024
+ *
+ * PURPOSE:
+ * 	Sets up a directory and analyzer for the database of cards.
+ * 	Searches for cards based on name or card text, according to user input.
+ * 	Has filter and subset functions for other programs to use. It looks for
+ * 	exact matches where possible and uses the default scoring.
+ *
+ *****************************************************************************/
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -26,6 +38,17 @@ public class Index {
     StandardAnalyzer analyzer;
     Directory index;
 
+    /*
+     * Loads up the index and analyzer, or builds them if they aren't
+     * present.
+     *
+     * Parameters:
+     * loadFromDisk: a boolean indicating whether to load from disk or not
+     * inputFilePath: the file path to the index
+     *
+     * Return:
+     * Nothing, sets up the index and analyzer
+     */
     public Index(boolean loadFromDisk, String inputFilePath) {
         analyzer = new StandardAnalyzer();
         if (loadFromDisk) {
@@ -35,6 +58,15 @@ public class Index {
         }
     }
 
+    /*
+     * Loads up the index
+     *
+     * Parameters:
+     * inputFilePath: the file path to the index
+     *
+     * Return:
+     * Nothing, sets up the index or prints an error if not possible
+     */
     private void loadIndex(String inputFilePath) {
         try {
             String filePath = new File(inputFilePath).getAbsolutePath();
@@ -44,6 +76,15 @@ public class Index {
         }
     }
 
+    /*
+     * Creates the index and saves documents to file.
+     *
+     * Parameters:
+     * inputFilePath: the file path to the index
+     *
+     * Return:
+     * Nothing, sets up the index or prints an error if not possible
+     */
     private void createIndex(String inputFilePath) {
         try {
             index = FSDirectory.open(Paths.get("mtgIndex"));
@@ -67,6 +108,17 @@ public class Index {
             e.printStackTrace();
         }
     }
+
+    /*
+     * Adds a document to the index
+     *
+     * Parameters:
+     * writer: an IndexWriter for index
+     * card: a representation of a card with a Map<String, Object>
+     *
+     * Return:
+     * Nothing, adds a card to the index
+     */
     private void addDoc(IndexWriter writer, Map<String, Object> card) throws IOException {
         Document doc = new Document();
         doc.add(new TextField("name", (String) card.get("name"), Field.Store.YES));
@@ -90,6 +142,16 @@ public class Index {
         writer.addDocument(doc);
     }
 
+    /*
+     * Searches for cards that best match the query. Uses the default scoring.
+     *
+     * Parameters:
+     * query: the Query used for searching
+     * how_many: an int representing the number of cards to return
+     *
+     * Return:
+     * a list of Documents (cards) that match the query.
+     */
     public List<Document> search(Query query, int how_many) throws IOException {
         IndexReader reader = DirectoryReader.open(index);
         IndexSearcher searcher = new IndexSearcher(reader);
@@ -104,13 +166,24 @@ public class Index {
             float score = hit.score;
             Document doc = searcher.doc(docID);
             results.add(doc);
-//            System.out.println(doc.get("name") + " " + doc.get("color_identity") + " (" + score + "):");
-//            System.out.println(doc.get("text") + "\n");
         }
 
         return results;
     }
 
+    /*
+     * Filters out cards that don't match a color identity or is a repeat card
+     *
+     * Parameters:
+     * results: a list of Documents representing card data
+     * cardNames: an ArrayList of String representing the names of cards
+     *      already present
+     * colorIdentity: a String representing the selection of colors valid
+     *      results can be
+     *
+     * Return:
+     * a list of Documents from results that match the criteria.
+     */
     public List<Document> filter(List<Document> results, ArrayList<String> cardNames, String colorIdentity) {
         List<Document> filteredResults = new ArrayList<>();
         for (Document card : results) {
@@ -125,6 +198,16 @@ public class Index {
         return filteredResults;
     }
 
+    /*
+     * Checks if a given string's characters is a subset of another string's
+     *
+     * Parameters:
+     * s1: the String that is being tested
+     * s2: the String s1 is checked against to see if s1 is a subset of s2
+     *
+     * Return:
+     * True, if s1 is a subset of s2; false otherwise
+     */
     private boolean isSubset(String s1, String s2) {
         for (char c : s1.toCharArray()) {
             if (s2.indexOf(c) == -1) {
@@ -135,8 +218,12 @@ public class Index {
     }
 
     public static void main(String[] args) {
+        // Comment this if mtgIndex is for some reason missing
         Index index = new Index(true, "mtgIndex");
-//        Index index = new Index(false, "oracleCards.json");
+
+        // Uncomment the below line if mtgIndex is for some reason missing
+        // Index index = new Index(false, "oracleCards.json");
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to Magic card search!");
 

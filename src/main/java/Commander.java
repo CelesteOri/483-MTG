@@ -209,7 +209,7 @@ public class Commander {
         }
 
         // Print out the results
-        System.out.println("Showing top " + size + " results:");
+        System.out.println("Showing top " + results.size() + " results:");
         System.out.println();
         for (Document card : results) {
             System.out.println(card.get("name") + " " + card.get("color_identity"));
