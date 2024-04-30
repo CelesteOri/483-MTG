@@ -3,10 +3,11 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class commander {
+public class Commander {
     public String[] getDeck(String fileName) throws Exception{
         // File path is passed as parameter
         File file = new File(fileName);
@@ -32,9 +33,10 @@ public class commander {
         return st;
     }
 
-    private List<String> keywords() throws Exception {
+    public List<String> keywords() throws Exception {
         // I don't know how to make this generic yet
-        File file = new File("C:\\Users\\honor\\IdeaProjects\\483-MTG\\keyword.txt");
+        //File file = new File("C:\\Users\\honor\\IdeaProjects\\483-MTG\\keyword.txt");
+        File file = new File("keyword.txt");
 
         // Creating an object of BufferedReader class
         BufferedReader br
@@ -49,7 +51,7 @@ public class commander {
         return keywordL;
     }
 
-    private String[] commanderSample(int number, String[] deck) {
+    public String[] commanderSample(int number, String[] deck) {
         String[] strings = new String[number];
         strings[0] = deck[0]; int i = 1;
 
@@ -70,31 +72,40 @@ public class commander {
         return strings;
     }
 
-    private List<String> parseKeywords(List<String> keys, String text) {
+    public List<String> parseKeywords(List<String> keys, String text) {
         List<String> appears = new ArrayList<String>();
 
         text = text.toLowerCase();
 
+        Pattern pattern;
+        Matcher matcher;
         for (String key : keys) {
-            if (text.contains(key.toLowerCase())) {
+            String word = Pattern.quote(key.toLowerCase());
+            pattern = Pattern.compile("\\b" + word + "\\b");
+            matcher = pattern.matcher(text);
+            if (matcher.find()) {
                 appears.add(key);
             }
+//            if (text.contains(key.toLowerCase())) {
+//                appears.add(key);
+//            }
         }
 
         return appears;
     }
 
     public static void main(String[] args) throws Exception {
-        commander temp = new commander();
-        String[] h = temp.getDeck("C:\\Users\\honor\\IdeaProjects\\483-MTG\\Atraxa, Praetors' Voice.txt");
-        String[] samp = temp.commanderSample(25, h);
+        Commander temp = new Commander();
+        //String[] h = temp.getDeck("C:\\Users\\honor\\IdeaProjects\\483-MTG\\Atraxa, Praetors' Voice.txt");
+        String[] h = temp.getDeck("Decklists/Atraxa, Praetors' Voice.txt");
+        String[] samp = temp.commanderSample(50, h);
 
         Index index = new Index(true, "mtgIndex");
 
         List<String> keys = temp.keywords();
         String color = "";
 
-        ArrayList<Document> deck = new ArrayList<>();
+        ArrayList<String> deck = new ArrayList<>();
         List<String> usableKeys = new ArrayList<>();
         for (String s : samp) {
             Query query = new QueryParser("name", index.analyzer).parse(s);
@@ -105,7 +116,7 @@ public class commander {
                 String text = card.get("text");
                 List<String> usable = temp.parseKeywords(keys, text);
                 usableKeys.addAll(usable);
-                deck.addAll(results);
+                deck.add(results.get(0).get("name"));
 
                 if (s.equals(samp[0])) {
                     color = card.get("color_identity");
@@ -120,13 +131,13 @@ public class commander {
         }
         Query query = new QueryParser("text", index.analyzer).parse(finalQuery);
         List<Document> results = null;
-        results = index.search(query, 120);
+        results = index.search(query, 1000);
 
 
         results = index.filter(results, deck, color);
 
-        if (results.size() > 100) {
-            results = results.subList(0, 100);
+        if (results.size() > 10) {
+            results = results.subList(0, 10);
         }
 
         for (Document card : results) {

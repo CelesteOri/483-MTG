@@ -111,13 +111,13 @@ public class Index {
         return results;
     }
 
-    public List<Document> filter(List<Document> results, List<Document> query, String color_identity) {
+    public List<Document> filter(List<Document> results, ArrayList<String> cardNames, String colorIdentity) {
         List<Document> filteredResults = new ArrayList<>();
         for (Document card : results) {
-            if (query.contains(card)) {
+            if (cardNames.contains(card.get("name"))) {
                 continue;
             }
-            if (!isSubset(card.get("color_identity"), color_identity)){
+            if (!isSubset(card.get("color_identity"), colorIdentity)){
                 continue;
             }
             filteredResults.add(card);
@@ -175,7 +175,7 @@ public class Index {
                 //e.printStackTrace();
             }
 
-            ArrayList<Document> dummy = new ArrayList<>();
+            ArrayList<String> dummy = new ArrayList<>();
             results = index.filter(results, dummy, "WUBRG");
 
             for (Document card : results) {
