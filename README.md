@@ -1,3 +1,5 @@
+Project Report: https://docs.google.com/document/d/17kXKu_ZauBaz-QBZNn7GfESYi98Y1Xb7ayQqMhrqjCg
+
 ***MAKE SURE TO IMPORT THE WHOLE PROJECT, DIRECTORIES INCLUDED***
 
 **Index.java: Magic Card Seach**
