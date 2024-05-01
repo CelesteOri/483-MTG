@@ -57,31 +57,31 @@
 - When prompted, type in the full file name of the decklist (for example, "Krenko, Mob Boss.txt"). DO NOT PUT THE ABSOLUTE PATH, ONLY THE FILE NAME.
 - Follow prompts as necessary
 - Example:
-
-Welcome to Magic Commander Deck Helper!
----------------------------------------
-Before using this program, make sure that you check the README!
-
-What is the filename of your deck?
-The Ur Dragon.txt
----------------------------------------
-Showing top 10 results:
-
-Broodmate Dragon BGR
-Flying
-When Broodmate Dragon enters the battlefield, create a 4/4 red Dragon creature token with flying.
-
-Young Red Dragon // Bathe in Gold R
-Flying
-Young Red Dragon can't block.
-Create a Treasure token. (Then exile this card. You may cast the creature later from exile.)
-
-Hoarding Dragon R
-Flying
-When Hoarding Dragon enters the battlefield, you may search your library for an artifact card, exile it, then shuffle.
-When Hoarding Dragon dies, you may put the exiled card into its owner's hand.
-
-...
+		
+		Welcome to Magic Commander Deck Helper!
+		---------------------------------------
+		Before using this program, make sure that you check the README!
+		
+		What is the filename of your deck?
+		The Ur Dragon.txt
+		---------------------------------------
+		Showing top 10 results:
+		
+		Broodmate Dragon BGR
+		Flying
+		When Broodmate Dragon enters the battlefield, create a 4/4 red Dragon creature token with flying.
+		
+		Young Red Dragon // Bathe in Gold R
+		Flying
+		Young Red Dragon can't block.
+		Create a Treasure token. (Then exile this card. You may cast the creature later from exile.)
+		
+		Hoarding Dragon R
+		Flying
+		When Hoarding Dragon enters the battlefield, you may search your library for an artifact card, exile it, then shuffle.
+		When Hoarding Dragon dies, you may put the exiled card into its owner's hand.
+		
+		...
 
 
 **Evaluation.java**
@@ -93,20 +93,20 @@ When Hoarding Dragon dies, you may put the exiled card into its owner's hand.
         int iteration = 100;
 
 - Example:
-Current Subset Size: 25
-	k = 1:
-    	hitRate: 0.2355
-    	meanPrecision: 0.2355
-	k = 2:
-    	hitRate: 0.3515
-    	meanPrecision: 0.20825
-	k = 3:
-    	hitRate: 0.4395
-    	meanPrecision: 0.20733333333333298
-	k = 4:
-    	hitRate: 0.4755
-    	meanPrecision: 0.189625
-	k = 5:
-    	hitRate: 0.5125
-    	meanPrecision: 0.1760999999999976
-  ...
+		Current Subset Size: 25
+			k = 1:
+		    	hitRate: 0.2355
+		    	meanPrecision: 0.2355
+			k = 2:
+		    	hitRate: 0.3515
+		    	meanPrecision: 0.20825
+			k = 3:
+		    	hitRate: 0.4395
+		    	meanPrecision: 0.20733333333333298
+			k = 4:
+		    	hitRate: 0.4755
+		    	meanPrecision: 0.189625
+			k = 5:
+		    	hitRate: 0.5125
+		    	meanPrecision: 0.1760999999999976
+		  ...
