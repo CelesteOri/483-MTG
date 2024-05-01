@@ -1,6 +1,6 @@
 ***MAKE SURE TO IMPORT THE WHOLE PROJECT, DIRECTORIES INCLUDED***
 
-**Index.java:**
+**Index.java: Magic Card Seach**
 - Run the program in a Java IDE (must be able to take input). If you are for some reason missing the mtgIndex, look for the lines of code that are as so:
   
         // Comment this if mtgIndex is for some reason missing
@@ -41,7 +41,7 @@
 		
 		...
 
-**Commander.java**
+**Commander.java: Card Recommendation System**
 - Requires Index.java
 - Place a (partially constructed) commander deck as a .txt in the Decklists directory. Be sure to follow this format, where the commander is the first card in the deck (if you do not know what the commander is, look at [this article](https://mtg.fandom.com/wiki/Commander_(designation))). It should look something like this:
 
@@ -84,7 +84,7 @@
 		...
 
 
-**Evaluation.java**
+**Evaluation.java: Testing for Card Recommendation System**
 - Requires Commander.java and Index.java
 - Place complete commander decks as a .txt file in the Decklists directory using the same format as in Commander.java.
 - Sample sizes and number of tests ran per k can be changed with the following variables:
