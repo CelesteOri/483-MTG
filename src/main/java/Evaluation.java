@@ -1,13 +1,32 @@
+/******************************************************************************
+ * AUTHOR: Adrian Moore & Honor Jang
+ * FILE: Evaluation.java
+ * COURSE: CSc 483, Spring 2024
+ *
+ * PURPOSE:
+ * Test the effectiveness of the card recommendation system in Commander.java.
+ * Runs many samples of sizes 25, 50, and 75 on a collection of decklists stored
+ * in the Decklists directory. Metrics reported are hit rate and mean precision,
+ * where hit rate is how often we recommend a card that is actually in the
+ * unsampled part of the decklist.
+ *
+ *****************************************************************************/
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 
+import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Evaluation {
 
+    /*
+     * Class for transfering the test data to main for reporting
+     */
     public class Data {
 
         public boolean hit;
@@ -19,6 +38,18 @@ public class Evaluation {
         }
     }
 
+    /*
+     * Performs a sinngle recommendation test
+     *
+     * Parameters:
+     * deckName: the name of the decklist we are going to sample
+     * subsetSize: the size of the sample to take from the decklist
+     * k: how many card we should recommend
+     *
+     * Return:
+     * the hit rate and precision for this test
+     *
+     */
     public Data testDeck(String deckName, int subsetSize, int k) throws Exception {
         Commander recommender = new Commander();
         String[] h = recommender.getDeck("Decklists/" + deckName);
@@ -63,7 +94,7 @@ public class Evaluation {
         }
 
         ArrayList<String> originalDeck = new ArrayList<>(Arrays.asList(h));
-        //ArrayList<String> sample = new ArrayList<>(Arrays.asList(samp));
+        ArrayList<String> sample = new ArrayList<>(Arrays.asList(samp));
         boolean hit = false;
         double count = 0;
         for (Document card : results) {
@@ -71,10 +102,9 @@ public class Evaluation {
                 hit = true;
                 count++;
             }
-//            if (sample.contains(card.get("name"))) {
-//                System.out.println("ERROR CARD IN SAMPLE");
-//            }
-
+            if (sample.contains(card.get("name"))) {
+                System.out.println("ERROR: RECOMMENDED CARD IN SAMPLE");
+            }
         }
 
         return new Data(hit, count / k);
@@ -83,29 +113,49 @@ public class Evaluation {
     public static void main(String[] args) throws Exception {
         Evaluation eval = new Evaluation();
 
-        int[] subsetSizes = {25, 50, 75};
+        int[] subsetSizes = {10};
+        int iteration = 100;
+
+        File decklistDirectory = new File("Decklists");
+        File[] files = decklistDirectory.listFiles();
+        ArrayList<String> decklists = new ArrayList<>();
+
+        for (File file : files) {
+            decklists.add(file.getName());
+        }
+
+        for (int i = 0; i < decklists.size(); i++) {
+            System.out.println(i + ": " + decklists.get(i));
+        }
+
+        long startTime = System.currentTimeMillis();
 
         for (int subsetSize : subsetSizes) {
             System.out.println("Current Subset Size: " + subsetSize);
             for (int k = 1; k <= 10; k++) {
                 double hits = 0;
                 double precision = 0;
-                for (int i = 0; i < 100; i++) {
-                    Data data = eval.testDeck("Atraxa, Praetors' Voice.txt", subsetSize, k);
-                    if (data.hit) {
-                        hits++;
+                for (String deckName : decklists) {
+                    for (int i = 0; i < iteration; i++) {
+                        Data data = eval.testDeck(deckName, subsetSize, k);
+                        if (data.hit) {
+                            hits++;
+                        }
+                        precision += data.precision;
                     }
-                    precision += data.precision;
                 }
 
-                double hitRate = hits / 100;
-                double meanPrecision = precision / 100;
+                double hitRate = hits / (20 * iteration);
+                double meanPrecision = precision / (20 * iteration);
 
                 System.out.println("    k = " + k + ":");
                 System.out.println("        hitRate: " + hitRate);
                 System.out.println("        meanPrecision: " + meanPrecision);
             }
         }
+
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("\nRuntime was " + ((endTime - startTime) / 60000.0) + " minutes");
     }
 }
-
