@@ -1,7 +1,8 @@
 ***MAKE SURE TO IMPORT THE WHOLE PROJECT, DIRECTORIES INCLUDED***
 
 **Index.java: Magic Card Seach**
-- Run the program in a Java IDE (must be able to take input). If you are for some reason missing the mtgIndex, look for the lines of code that are as so:
+- Run the program in a Java IDE (must be able to take input). This is a Maven project.
+- If you are for some reason missing the mtgIndex, look for the lines of code that are as so:
   
         // Comment this if mtgIndex is for some reason missing
         Index index = new Index(true, "mtgIndex");
@@ -13,7 +14,7 @@
 - You will need to unzip oracleCards.zip to access oracleCards.json
 - Re-comment those lines after creating a new index since creating a new index each time may lead to duplicate cards in the index.
 
-- To run the program:
+- To run Index.java:
 - Follow prompts. Note that MTG does use some unusual spellings on occasion (Faerie vs. Fairy) and thus won't give results for traditional spellings.
 - Example:
   		
