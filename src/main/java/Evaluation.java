@@ -113,7 +113,7 @@ public class Evaluation {
     public static void main(String[] args) throws Exception {
         Evaluation eval = new Evaluation();
 
-        int[] subsetSizes = {10};
+        int[] subsetSizes = {25, 50, 75};
         int iteration = 100;
 
         File decklistDirectory = new File("Decklists");

@@ -255,7 +255,7 @@ public class Index {
             System.out.println("Your search results are:\n");
             List<Document> results = null;
             try {
-                results = index.search(query, 100);
+                results = index.search(query, 10);
             } catch (IOException e) {
                 System.out.println("Error while searching :(");
                 continue;
