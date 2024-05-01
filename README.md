@@ -16,29 +16,30 @@
 - To run the program:
 - Follow prompts. Note that MTG does use some unusual spellings on occasion (Faerie vs. Fairy) and thus won't give results for traditional spellings.
 - Example:
-      Welcome to Magic card search!
-      Would you like to search card names or card text? (type n/t)
-      n
-      Please enter a search query:
-      dragon
-      Your search results are:
-      
-      Dragon Fangs G
-      Enchant creature
-      Enchanted creature gets +1/+1 and has trample.
-      When a creature with mana value 6 or greater enters the battlefield, you may return Dragon Fangs from your graveyard to the battlefield attached to that creature.
-      
-      Dragon Scales W
-      Enchant creature
-      Enchanted creature gets +1/+2 and has vigilance.
-      When a creature with mana value 6 or greater enters the battlefield, you may return Dragon Scales from your graveyard to the battlefield attached to that creature.
-      
-      Eternal Dragon W
-      Flying
-      {3}{W}{W}: Return Eternal Dragon from your graveyard to your hand. Activate only during your upkeep.
-      Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, reveal it, put it into your hand, then shuffle.)
+  
+	Welcome to Magic card search!
+	Would you like to search card names or card text? (type n/t)
+	n
+	Please enter a search query:
+	dragon
+	Your search results are:
+	
+	Dragon Fangs G
+	Enchant creature
+	Enchanted creature gets +1/+1 and has trample.
+	When a creature with mana value 6 or greater enters the battlefield, you may return Dragon Fangs from your graveyard to the battlefield attached to that creature.
+	
+	Dragon Scales W
+	Enchant creature
+	Enchanted creature gets +1/+2 and has vigilance.
+	When a creature with mana value 6 or greater enters the battlefield, you may return Dragon Scales from your graveyard to the battlefield attached to that creature.
+	
+	Eternal Dragon W
+	Flying
+	{3}{W}{W}: Return Eternal Dragon from your graveyard to your hand. Activate only during your upkeep.
+	Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, reveal it, put it into your hand, then shuffle.)
 
-...
+	...
 
 **Commander.java**
 - Requires Index.java
